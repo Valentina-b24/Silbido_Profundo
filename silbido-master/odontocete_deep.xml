@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<silbido>
+    <params>
+        
+        <!-- Time/frequency distribution (discrete Fourier transform) parameters -->
+        <advance_ms type="double">2</advance_ms>
+        <length_ms  type="double">8</length_ms>
+        
+        <!-- Frequency analysis criteria -->
+        <maxgap_Hz  type="double">1000</maxgap_Hz>  <!-- maximum gap between prediction and peak -->
+        <low_cutoff_Hz  type="double">2000</low_cutoff_Hz> <!-- frequenza minima -->
+        <high_cutoff_Hz  type="double">20000</high_cutoff_Hz> <!-- frequenza massima analizzata -->
+
+        <!-- Peak detection method and threshold -->
+        <peak_method type="char">'DeepWhistle'</peak_method>
+        <confidence_thresh  type="double">.86</confidence_thresh>  <!-- DeepWhistle peak confidence criterion (90% di sicurezza) -->
+        <energy_thresh type="double">5</energy_thresh>  <!--Graph Search Energy peak energy criterion-->
+
+        <!-- Duration criteria -->
+        <minlen_ms  type="double">200</minlen_ms> <!-- Minimum whistle duration -->
+        <maxgap_ms  type="double">200</maxgap_ms>  <!-- Maximum gap in energy to bridge when looking for a tonal -->
+        <activeset_s  type="double">.015</activeset_s>  <!-- Peaks must be part of a graph with this duration 
+                                              to be promoted to the active set -->
+        <blocklen_s  type="double">3</blocklen_s>  <!-- Process blocks of duration x -->
+
+        <!-- Echolocation click pruning criteria -->
+        <click_dB  type="double">3</click_dB> <!-- Click SNR criterion (used to skip echolocation clicks. minore è il numero anche i click più bassi vengono scartati -->
+        <broadband  type="double">.002</broadband>  <!-- When peak count increases by more than this ratio, 
+                                         we assume that a broadband event such as a click has
+                                         occurred and skip the frame.cosi riconosce subito i click e li scarta -->
+
+        <!-- Graph parameters -->
+        <!-- Use up to preceding N s for polynomial fit when predicting whether or not a peak
+            should be added to the current frontier sets (active set + orphan set) -->
+        <predict_lookback_s type="double">.025</predict_lookback_s>
+        <!-- Use preceding N s for polynomial fit when disambiguating a graph -->
+        <disambiguate_s type="double">.3</disambiguate_s>   
+        
+    </params>
+</silbido>

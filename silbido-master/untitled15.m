@@ -1,0 +1,103 @@
+cd /Users/valentinabottoni/TESI/Silbido_Profundo/silbido-master
+
+% --- TEST DI SOPRAVVIVENZA ---
+if exist(fullfile(pwd, 'jar', 'silbido.jar'), 'file') == 0
+    error('🛑 FERMA TUTTO! Il file silbido.jar non esiste in questa cartella!');
+end
+% -----------------------------
+
+addpath(genpath(pwd));
+silbido_init
+
+%% 1. IMPOSTA LE CARTELLE E TROVA I FILE
+cartella_audio = '/Users/valentinabottoni/TESI/Fischi_Beluga/Fischi_Buoni/'; % Controlla che il nome sia giusto!
+
+contenuto = dir(cartella_audio);
+lista_file = [];
+for i = 1:length(contenuto)
+    nome = contenuto(i).name;
+    if length(nome) > 4 && strcmpi(nome(end-3:end), '.wav') && ~startsWith(nome, '._')
+        lista_file = [lista_file; contenuto(i)];
+    end
+end
+
+fprintf('Trovati %d file audio pronti.\n', length(lista_file));
+
+%% PREPARAZIONE TABELLA FINALE (Il trucco salva-memoria)
+Risultati_Totali = table();
+
+%% 2. CICLO DI ANALISI E METADATI
+for k = 1:length(lista_file)
+    nome_attuale = lista_file(k).name;
+    percorso_completo = fullfile(cartella_audio, nome_attuale);
+    
+    % --- ESTRAZIONE DATA E ORA  ---
+    if startsWith(nome_attuale, 'NYA')
+        parti = strsplit(nome_attuale, '_');
+        if length(parti) >= 3
+            data_str = parti{2}; ora_str = parti{3};
+            anno_lungo = data_str(1:4); mese = data_str(5:6); giorno = data_str(7:8);
+            ora = ora_str(1:2); minuti = ora_str(3:4); secondi = ora_str(5:6);
+        else
+            continue;
+        end
+    else
+        parti = strsplit(nome_attuale, '.');
+        if length(parti) >= 2
+            timestamp = parti{2}; 
+            if length(timestamp) >= 12
+                anno_lungo = ['20', timestamp(1:2)]; mese = timestamp(3:4); giorno = timestamp(5:6);
+                ora = timestamp(7:8); minuti = timestamp(9:10); secondi = timestamp(11:12);
+            else
+                continue;
+            end
+        else
+            continue;
+        end
+    end
+    data_ora_completa = sprintf('%s-%s-%s %s:%s:%s', anno_lungo, mese, giorno, ora, minuti, secondi);
+
+    % --- ANALISI CON PROTEZIONE CRASH ---
+    fprintf('Analizzando: %s (%d di %d)...\n', nome_attuale, k, length(lista_file));
+    
+    try
+        % 1. Calcola fine sicura
+        info_audio = audioinfo(percorso_completo);
+        fine_sicura = info_audio.Duration - 0.1;
+        
+        % 2. Detection
+        detections = dtTonalsTracking(percorso_completo, 0, fine_sicura);
+        
+        % 3. SALVATAGGIO FILE .MAT 
+        nome_mat = [nome_attuale(1:end-4), '_risultati.mat'];
+        save(fullfile(cartella_audio, nome_mat), 'detections');
+        
+        % 4. FILTRO ANTI-IDROFONO (Contiamo solo dopo i 2 secondi)
+        totale_fischi = 0;
+        for i = 0:(detections.size() - 1)
+            fischio = detections.get(i);
+            tempi = fischio.get_time(); 
+            if min(tempi) > 2.0
+                totale_fischi = totale_fischi + 1;
+            end
+        end
+        
+        % 5. RACCOLTA DATI (Senza scrivere su Excel per ora)
+        Tabella_Riga = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, totale_fischi, ...
+            'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'Fischi_Trovati'});
+        
+        % Accoda la riga alla tabella in memoria
+        Risultati_Totali = [Risultati_Totali; Tabella_Riga];
+        
+    catch ME 
+        fprintf('⚠️ Errore sul file %s.\n ❌ MOTIVO: %s\n', nome_attuale, ME.message);
+    end
+end
+
+%% 3. SCRITTURA EXCEL (UNA SOLA VOLTA ALLA FINE)
+if ~isempty(Risultati_Totali)
+    % Scrive tutto in un colpo solo, zero stress per il Mac!
+    writetable(Risultati_Totali, fullfile(cartella_audio, 'Analisi_fischi_buoni88.xlsx'));
+end
+
+fprintf('\n✅ ANALISI COMPLETATA! Ora hai sia l''Excel che i file .mat.\n');
