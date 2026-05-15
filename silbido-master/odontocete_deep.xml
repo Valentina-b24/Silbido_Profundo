@@ -13,7 +13,7 @@
 
         <!-- Peak detection method and threshold -->
         <peak_method type="char">'DeepWhistle'</peak_method>
-        <confidence_thresh  type="double">.86</confidence_thresh>  <!-- DeepWhistle peak confidence criterion (90% di sicurezza) -->
+        <confidence_thresh  type="double">.80</confidence_thresh>  <!-- DeepWhistle peak confidence criterion (90% di sicurezza) -->
         <energy_thresh type="double">5</energy_thresh>  <!--Graph Search Energy peak energy criterion-->
 
         <!-- Duration criteria -->

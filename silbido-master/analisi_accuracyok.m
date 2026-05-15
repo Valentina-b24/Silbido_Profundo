@@ -2,7 +2,7 @@
 clear all; clc;
 
 % 1. Caricamento del dataset
-nome_file = '/Users/valentinabottoni/Desktop/Analisi_fischi_2014_86%.csv';
+nome_file = '/Users/valentinabottoni/Desktop/Analisi_fischi_2025_84%.xlsx';
 T = readtable(nome_file);
 
 % 2. Binarizzazione dei dati

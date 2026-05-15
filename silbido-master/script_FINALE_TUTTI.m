@@ -3,7 +3,7 @@ addpath(genpath(pwd)); % MATLAB a ricordare tutte le cartelle!
 silbido_init
 
 %% 1. IMPOSTA LE CARTELLE E TROVA I FILE
-cartella_audio = '/Volumes/WD_1T_VALE/rec/2021/'; % Controlla che il nome sia giusto!
+cartella_audio = '/Users/valentinabottoni/TESI/Silbido_Profundo/Fischi_Beluga/No_fischi_no_rumore/'; % Controlla che il nome sia giusto!
 contenuto = dir(cartella_audio);
 lista_file = [];
 for i = 1:length(contenuto)
@@ -85,7 +85,7 @@ for k = 1:length(lista_file)
         Tabella_Risultati = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, totale_fischi, ...
             'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'Fischi_Trovati'});
         
-        writetable(Tabella_Risultati, 'Analisi_fischi_2014_86%.xlsx', 'WriteMode', 'append');
+        writetable(Tabella_Risultati, 'Analisi_no_fischi_no_rumore80%_200ms.xlsx', 'WriteMode', 'append');
         
     catch ME 
         % ORA CI STAMPERÀ IL VERO ERRORE!
