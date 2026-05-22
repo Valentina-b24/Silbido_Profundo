@@ -2,8 +2,32 @@
 clear all; clc;
 
 % 1. Caricamento del dataset
-nome_file = '/Users/valentinabottoni/Desktop/Analisi_88%150ms2021.xlsx';
-T = readtable(nome_file);
+nome_file = '/Users/valentinabottoni/Desktop/Analisi_2022_86%_150ms.xlsx';
+T = readtable(nome_file, 'VariableNamingRule', 'preserve');
+
+% --- INIZIO FIX ANTI-ERRORE ---
+% Se MATLAB legge le colonne come 'Var1', forziamo le intestazioni corrette
+if any(contains(T.Properties.VariableNames, 'Var1'))
+    titoli_reali = string(table2cell(T(1, :)));
+    titoli_reali = strtrim(titoli_reali);
+    T.Properties.VariableNames = titoli_reali;
+    T(1, :) = []; % Rimuove la riga usata per le intestazioni
+end
+
+% Forziamo le colonne a essere numeriche per evitare errori di calcolo
+if iscell(T.presence) || isstring(T.presence)
+    T.presence = str2double(string(T.presence));
+end
+if iscell(T.Fischi_Trovati) || isstring(T.Fischi_Trovati)
+    T.Fischi_Trovati = str2double(string(T.Fischi_Trovati));
+end
+
+% Pulizia: rimozione righe vuote e duplicati dell'effetto "append"
+righe_valide = ~isnan(T.presence) & ~isnan(T.Fischi_Trovati);
+T = T(righe_valide, :);
+[~, indici_unici] = unique(T.file_name, 'last');
+T = T(indici_unici, :);
+% --- FINE FIX ANTI-ERRORE ---
 
 % 2. Binarizzazione dei dati
 % Conversione dei conteggi del software in classificazione binaria (presenza/assenza)
@@ -30,7 +54,6 @@ Accuracy = (TP + TN) / totale_file_analizzati;
 
 % 6. Stampa dei risultati a terminale
 fprintf('--- RISULTATI DELLA VALUTAZIONE DEL DETECTOR ---\n\n');
-
 fprintf('Campione analizzato:\n');
 fprintf('- Totale file analizzati             : %d\n', totale_file_analizzati);
 fprintf('- Positivi reali (Ground Truth = 1)  : %d\n', totale_positivi_reali);

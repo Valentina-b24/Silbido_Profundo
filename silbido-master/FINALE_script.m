@@ -3,9 +3,10 @@ addpath(genpath(pwd)); % MATLAB a ricordare tutte le cartelle!
 silbido_init
 
 %% 1. IMPOSTA LE CARTELLE E TROVA I FILE
-cartella_audio = '/Volumes/WD_1T_VALE/rec/2017/' % Controlla che il nome sia giusto!
+cartella_audio = '/Volumes/Storico/Kongsfjorden/Open_B/1-NA-open-B_29Apr14-7Jun14/result'; % Controlla che il nome sia giusto!
 contenuto = dir(cartella_audio);
 lista_file = [];
+
 for i = 1:length(contenuto)
     nome = contenuto(i).name;
     if length(nome) > 4 && strcmpi(nome(end-3:end), '.wav') && ~startsWith(nome, '._')
@@ -59,9 +60,10 @@ for k = 1:length(lista_file)
     fprintf('Analizzando: %s (%d di %d)...\n', nome_attuale, k, length(lista_file));
     
     try
-        % 1. Calcola fine sicura
+        % 1. Calcola fine sicura ed estrae la durata
         info_audio = audioinfo(percorso_completo);
-        fine_sicura = info_audio.Duration - 0.1;
+        durata_audio = info_audio.Duration; % Salviamo la durata per metterla in Excel!
+        fine_sicura = durata_audio - 0.1;
         
         % 2. Detection
         detections = dtTonalsTracking(percorso_completo, 0, fine_sicura);
@@ -82,10 +84,11 @@ for k = 1:length(lista_file)
         end
         
         % 5. SCRIVE EXCEL
-        Tabella_Risultati = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, totale_fischi, ...
-            'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'Fischi_Trovati'});
+        % Aggiunta la variabile durata_audio e il nome 'durata_sec'
+        Tabella_Risultati = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, durata_audio, totale_fischi, ...
+            'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'durata_sec', 'Fischi_Trovati'});
         
-        writetable(Tabella_Risultati, 'Analisi_2017_86%_150ms.xlsx', 'WriteMode', 'append');
+        writetable(Tabella_Risultati, 'Analisi_29Aprile-7Jun14.xlsx', 'WriteMode', 'append');
         
     catch ME 
         % ORA CI STAMPERÀ IL VERO ERRORE!

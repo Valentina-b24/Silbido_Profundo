@@ -3,7 +3,7 @@ addpath(genpath(pwd)); % MATLAB a ricordare tutte le cartelle!
 silbido_init
 
 %% 1. IMPOSTA LE CARTELLE E TROVA I FILE
-cartella_audio = '/Volumes/WD_1T_VALE/rec/2017/' % Controlla che il nome sia giusto!
+cartella_audio = '/Volumes/WD_1T_VALE/rec/2022/'; % Controlla che il nome sia giusto!
 contenuto = dir(cartella_audio);
 lista_file = [];
 for i = 1:length(contenuto)
@@ -59,19 +59,17 @@ for k = 1:length(lista_file)
     fprintf('Analizzando: %s (%d di %d)...\n', nome_attuale, k, length(lista_file));
     
     try
-        % 1. Calcola fine sicura
+        % 1. Calcola fine sicura ed estrae la durata
         info_audio = audioinfo(percorso_completo);
-        fine_sicura = info_audio.Duration - 0.1;
+        durata_audio = info_audio.Duration; % Salviamo la durata per metterla in Excel!
+        fine_sicura = durata_audio - 0.1;
         
         % 2. Detection
         detections = dtTonalsTracking(percorso_completo, 0, fine_sicura);
         
-        % 3. SALVATAGGIO FILE .MAT 
-        % Crea il nome sostituendo .wav (o .WAV) con _risultati.mat
-        nome_mat = [nome_attuale(1:end-4), '_risultati.mat'];
-        save(fullfile(cartella_audio, nome_mat), 'detections');
+        % [RIMOZIONE BLOCCO SALVATAGGIO .MAT] -> Rimosso per non toccare il server in scrittura!
         
-        % 4. FILTRO ANTI-IDROFONO (Contiamo solo dopo i 2 secondi)
+        % 3. FILTRO ANTI-IDROFONO (Contiamo solo dopo i 2 secondi)
         totale_fischi = 0;
         for i = 0:(detections.size() - 1)
             fischio = detections.get(i);
@@ -81,15 +79,16 @@ for k = 1:length(lista_file)
             end
         end
         
-        % 5. SCRIVE EXCEL
-        Tabella_Risultati = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, totale_fischi, ...
-            'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'Fischi_Trovati'});
+        % 4. SCRIVE EXCEL DIRETTAMENTE SUL TUO MAC (In locale nella cartella silbido-master)
+        Tabella_Risultati = table({nome_attuale}, {data_ora_completa}, {anno_lungo}, {mese}, {giorno}, {ora}, {minuti}, {secondi}, durata_audio, totale_fischi, ...
+            'VariableNames', {'file_name', 'datetime', 'year', 'month', 'day', 'hour', 'min', 'sec', 'durata_sec', 'Fischi_Trovati'});
         
-        writetable(Tabella_Risultati, 'Analisi_2017_86%_150ms.xlsx', 'WriteMode', 'append');
+        % Forziamo il salvataggio dentro la cartella locale di lavoro del Mac
+        file_excel_locale = fullfile('/Users/valentinabottoni/TESI/Silbido_Profundo/silbido-master', 'Analisi_88%150ms2023.xlsx');
+        writetable(Tabella_Risultati, file_excel_locale, 'WriteMode', 'append');
         
     catch ME 
-        % ORA CI STAMPERÀ IL VERO ERRORE!
         fprintf('⚠️ Errore sul file %s.\n ❌ MOTIVO: %s\n', nome_attuale, ME.message);
     end
 end
-fprintf('\n✅ ANALISI COMPLETATA! Ora hai sia l''Excel che i file .mat.\n');
+fprintf('\n✅ ANALISI COMPLETATA! Il tuo file Excel locale su MATLAB è pronto.\n');

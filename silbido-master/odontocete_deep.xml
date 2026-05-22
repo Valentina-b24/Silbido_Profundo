@@ -13,11 +13,11 @@
 
         <!-- Peak detection method and threshold -->
         <peak_method type="char">'DeepWhistle'</peak_method>
-        <confidence_thresh  type="double">.80</confidence_thresh>  <!-- DeepWhistle peak confidence criterion (90% di sicurezza) -->
+        <confidence_thresh  type="double">.88</confidence_thresh>  <!-- DeepWhistle peak confidence criterion (90% di sicurezza) -->
         <energy_thresh type="double">5</energy_thresh>  <!--Graph Search Energy peak energy criterion-->
 
         <!-- Duration criteria -->
-        <minlen_ms  type="double">200</minlen_ms> <!-- Minimum whistle duration -->
+        <minlen_ms  type="double">150</minlen_ms> <!-- Minimum whistle duration -->
         <maxgap_ms  type="double">200</maxgap_ms>  <!-- Maximum gap in energy to bridge when looking for a tonal -->
         <activeset_s  type="double">.015</activeset_s>  <!-- Peaks must be part of a graph with this duration 
                                               to be promoted to the active set -->

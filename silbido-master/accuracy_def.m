@@ -2,7 +2,7 @@
 clear all; clc;
 
 % 1. CARICAMENTO DEL FILE EXCEL
-nome_file = '/Users/valentinabottoni/Desktop/Analisi_fischi_2021_85%(200ms).xlsx';
+nome_file = '/Users/valentinabottoni/Desktop/Analisi_2025_86%_150ms.xlsx';
 
 % Questo comando analizza il file e capisce da solo dove sono i titoli
 opts = detectImportOptions(nome_file); 
